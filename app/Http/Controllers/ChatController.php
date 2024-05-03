@@ -58,7 +58,7 @@ class ChatController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Чат успешно создан',
-                'chat_id' => $chat->id
+                'chat' => ChatResource::make($chat)->resolve()
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -79,5 +79,25 @@ class ChatController extends Controller
         $chat = ChatResource::make($chat)->resolve();
 
         return inertia('Chat/Show', compact('chat', 'users', 'messages'));
+    }
+
+    public function destroy(Chat $chat): JsonResponse
+    {
+        try {
+            $chat->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Чат успешно удалён',
+                'chats' => ChatResource::collection(auth()->user()->chats()->get())->resolve()
+            ]);
+        } catch (\Throwable $e) {
+            Log::channel('chat')->error($e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ошибка при удалении чата. Попробуйте ещё раз.'
+            ]);
+        }
     }
 }

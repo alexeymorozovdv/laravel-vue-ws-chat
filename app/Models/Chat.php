@@ -24,4 +24,15 @@ class Chat extends Model
     {
         return $this->hasMany(Message::class, 'chat_id', 'id');
     }
+
+    public function getCanDeleteAttribute(): bool
+    {
+        foreach ($this->users()->get() as $user) {
+            if ((int) $user->id === (int) auth()->id()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

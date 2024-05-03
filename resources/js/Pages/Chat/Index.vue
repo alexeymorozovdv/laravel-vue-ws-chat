@@ -59,13 +59,11 @@ export default {
                 title: title
             }).then(res => {
                 if (res.data.status === 'success') {
-                    debugger
+                    this.chats.push(res.data.chat)
                     this.$swal({
                         icon: 'success',
                         html: res.data.message,
                         timer: 1500
-                    }).then(() => {
-                        this.chats.push(res);
                     })
                 } else {
                     this.$swal({
@@ -77,8 +75,49 @@ export default {
             });
         },
 
-        deleteChat() {
+        deleteChat(chat) {
+            if (!chat.canDelete) {
+                this.$swal({
+                    icon: 'error',
+                    html: 'You cannot delete this chat!',
+                    timer: 1500
+                });
 
+                return;
+            }
+
+            this.$swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(route('chats.destroy', chat))
+                        .then(res => {
+                            if (res.data.status === 'success') {
+                                // Удаляем чат из списка чатов
+                                const deleteChatIndex = this.chats.findIndex(p => p.id === chat.id)
+                                this.chats.splice(deleteChatIndex, 1)
+                                this.$swal({
+                                    icon: 'success',
+                                    html: res.data.message,
+                                    timer: 1500
+                                })
+                            } else {
+                                this.$swal({
+                                    icon: 'error',
+                                    html: res.data.message,
+                                    timer: 1500
+                                })
+                            }
+                    })
+
+                }
+            });
         }
     }
 }
@@ -89,7 +128,7 @@ export default {
         <!-- Chats section -->
         <div class="p-4 w-1/2 bg-white border border-gray-200 mr-4 rounded-lg">
             <h3 class="mb-4 text-lg text-gray-600">Chats:</h3>
-            <div v-if="chats">
+            <div v-if="chats.length > 0">
                 <div v-for="(chat, index) in chats"
                      :class="['flex items-center pb-4',
                         (index !== chats.length - 1) ? 'border-b border-gray-300 mb-4' : '']">
@@ -104,6 +143,7 @@ export default {
                     </a>
                 </div>
             </div>
+            <div v-else>No Chats Found</div>
         </div>
 
         <!-- Users section -->
@@ -116,7 +156,7 @@ export default {
                     Make a group chat
                 </a>
             </div>
-            <div v-if="users">
+            <div v-if="users.length > 0">
                 <div v-for="(user, index) in users"
                      :class="['flex items-center pb-4',
                         (index !== users.length - 1) ? 'border-b border-gray-300 mb-4' : '']">
@@ -129,6 +169,7 @@ export default {
                     </a>
                 </div>
             </div>
+            <div v-else>No Users Found</div>
         </div>
     </div>
 
