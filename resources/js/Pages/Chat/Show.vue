@@ -24,7 +24,7 @@ export default {
                 user_ids: this.userIds
             }).then(res => {
                 this.messages.push(res.data);
-                // TODO: добавить попап
+                this.body = '';
             })
         }
     },

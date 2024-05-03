@@ -56,7 +56,8 @@ export default {
         sendCreateChatRequest(users, title) {
             axios.post(route('chats.store'), {
                 users: users,
-                title: title
+                title: title,
+                isGroup: this.isGroup
             }).then(res => {
                 if (res.data.status === 'success') {
                     this.chats.push(res.data.chat)

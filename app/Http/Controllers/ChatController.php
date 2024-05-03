@@ -35,10 +35,10 @@ class ChatController extends Controller
         sort($usersIds);
         $usersIdsString = implode('-', $usersIds);
 
-        if (Chat::where('users', $usersIdsString)->exists()) {
+        if (!$data['isGroup'] && Chat::where('users', $usersIdsString)->exists()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Чат с этим пользователем уже создан.'
+                'message' => 'A chat with this user already exists'
             ]);
         }
 
@@ -57,7 +57,7 @@ class ChatController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Чат успешно создан',
+                'message' => 'The chat was successfully created',
                 'chat' => ChatResource::make($chat)->resolve()
             ]);
         } catch (\Throwable $e) {
@@ -67,7 +67,7 @@ class ChatController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Ошибка при создании чата. Попробуйте ещё раз.'
+                'message' => "Error while chat's creating. Try again"
             ]);
         }
     }
@@ -88,7 +88,7 @@ class ChatController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Чат успешно удалён',
+                'message' => 'The chat was successfully deleted',
                 'chats' => ChatResource::collection(auth()->user()->chats()->get())->resolve()
             ]);
         } catch (\Throwable $e) {
@@ -96,7 +96,7 @@ class ChatController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Ошибка при удалении чата. Попробуйте ещё раз.'
+                'message' => "Error while chat's deleting. Try again"
             ]);
         }
     }
