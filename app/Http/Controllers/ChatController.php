@@ -22,7 +22,7 @@ class ChatController extends Controller
     public function index(): Response
     {
         $users = UserResource::collection(User::whereNot('id', auth()->id())->get())->resolve();
-        $chats = MessageResource::collection(auth()->user()->chats()->has('messages')->get())->resolve();
+        $chats = ChatResource::collection(auth()->user()->chats()->has('messages')->get())->resolve();
 
         return inertia('Chat/Index', compact('users', 'chats'));
     }
@@ -47,7 +47,11 @@ class ChatController extends Controller
 
             DB::commit();
 
-            return redirect()->route('chats.show', $chat->id);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Чат успешно создан',
+                'chat_id' => $chat->id
+            ]);
         } catch (\Throwable $e) {
             DB::rollBack();
 

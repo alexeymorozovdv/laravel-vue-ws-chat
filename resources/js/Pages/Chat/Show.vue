@@ -45,7 +45,7 @@ export default {
 </script>
 
 <template>
-    <div class="flex">
+    <div class="flex items-start">
         <div class="p-4 w-3/4 bg-white border border-gray-200 mr-4 rounded-lg">
             <h3 class="mb-4 text-lg text-gray-600">{{ chat.title ?? 'Unnamed chat' }}</h3>
             <div class="mb-4" v-if="messages">
