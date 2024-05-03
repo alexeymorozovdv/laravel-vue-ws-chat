@@ -49,7 +49,7 @@ export default {
             }
 
             let userId = user.id;
-            let title = `Chat with ${user.name}`
+            let title = `${user.name} - ${this.$page.props.auth.user.name} chat`
             this.sendCreateChatRequest({ userId }, title)
         },
 
@@ -128,7 +128,7 @@ export default {
     <div class="flex items-start">
         <!-- Chats section -->
         <div class="p-4 w-1/2 bg-white border border-gray-200 mr-4 rounded-lg">
-            <h3 class="mb-4 text-lg text-gray-600">Chats:</h3>
+            <h3 class="mb-4 text-lg text-gray-600">My Chats:</h3>
             <div v-if="chats.length > 0">
                 <div v-for="(chat, index) in chats"
                      :class="['flex items-center pb-4',
@@ -180,13 +180,13 @@ export default {
            v-on:close="showCreateGroupChatModal = false"
     >
         <div class="mb-4">
-            <h5 class="mb-4 text-md">New chat's name:</h5>
+            <h5 class="mb-4 text-md">Chat's name:</h5>
             <input
                 class="rounded-full block w-full p-4 text-gray-900 border border-gray-300 rounded-lg
                     bg-gray-50 text-sm focus:ring-blue-500 focus:border-blue-500"
                 type="text"
                 v-model="createGroupChatData.chatTitle"
-                placeholder="New chat's name.."
+                placeholder="Chat's name..."
             >
         </div>
 
