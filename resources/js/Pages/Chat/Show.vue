@@ -37,7 +37,7 @@ export default {
             }).filter(userId => {
                 return userId !== this.$page.props.auth.user.id
             })
-        }
+        },
     },
 
     layout: Main,
@@ -49,25 +49,35 @@ export default {
         <div class="p-4 w-3/4 bg-white border border-gray-200 mr-4 rounded-lg">
             <h3 class="mb-4 text-lg text-gray-600">{{ chat.title ?? 'Unnamed chat' }}</h3>
             <div class="mb-4" v-if="messages">
-                <div v-for="message in messages" class="pb-4 text-sm">
-                    <div class="flex items-cente">
+                <div v-for="message in messages" :class="['pb-4 text-sm',
+                        message.is_owner ? 'text-right' : 'text-left']">
+                    <div :class="['p-4 my-2 border rounded inline-block',
+                        message.is_owner ? 'bg-sky-50 border-sky-100' : 'bg-yellow-50 border-yellow-100']"
+                    >
                         <p class="font-bold">{{ message.user_name }}</p>
-                        <p class="ml-1 italic">said {{ message.time }}</p>
+                        <p class="my-4">{{ message.body }}</p>
+                        <p class="italic">{{ message.time }}</p>
                     </div>
-                    <p class="bg-sky-50 p-4 my-2 border border-sky-100 rounded-full">{{ message.body }}</p>
+
 
                 </div>
             </div>
 
             <div>
-                <h3 class="mb-4 text-lg text-gray-600">Send message</h3>
-                <div class="flex items-center">
-                    <div>
-                        <input class="rounded-full" type="text" v-model="body" placeholder="Write a message..">
+                <h3 class="mb-4 text-lg text-gray-600">Send a message</h3>
+                <div>
+                    <div class="mb-4">
+                        <input
+                            class="rounded-full block w-full p-4 text-gray-900 border border-gray-300 rounded-lg
+                                bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500"
+                            type="text"
+                            v-model="body"
+                            placeholder="Write a message.."
+                        >
                     </div>
                     <div>
                         <a @click.prevent="store()"
-                           class="inline-block bg-indigo-600 text-white text-sm px-4 py-2 ml-4 rounded-lg hover:bg-indigo-400"
+                           class="inline-block bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-400"
                            href="#">
                             Send
                         </a>

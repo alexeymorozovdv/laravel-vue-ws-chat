@@ -16,9 +16,14 @@ class Message extends Model
     protected $guarded = false;
     protected $with = ['author'];
 
-    public function getTimeAttribute()
+    public function getTimeAttribute(): string
     {
         return $this->created_at->diffForHumans();
+    }
+
+    public function getIsOwnerAttribute(): bool
+    {
+        return (int) $this->user_id === (int) auth()->id();
     }
 
     public function chat(): BelongsTo
