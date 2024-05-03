@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Chat\StoreRequest;
-use App\Http\Resources\Chat\ChatResource;
+use App\Http\Resources\Chat\MessageResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Chat;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
@@ -19,12 +21,12 @@ class ChatController extends Controller
     public function index(): Response
     {
         $users = UserResource::collection(User::whereNot('id', auth()->id())->get())->resolve();
-        $chats = ChatResource::collection(auth()->user()->chats()->get())->resolve();
+        $chats = MessageResource::collection(auth()->user()->chats()->has('messages')->get())->resolve();
 
         return inertia('Chat/Index', compact('users', 'chats'));
     }
 
-    public function store(StoreRequest $request): Response|ResponseFactory
+    public function store(StoreRequest $request): RedirectResponse|JsonResponse
     {
         $data = $request->validated();
         $usersIds = array_merge($data['users'], [auth()->id()]);
@@ -43,21 +45,25 @@ class ChatController extends Controller
             $chat->users()->sync($usersIds);
 
             DB::commit();
+
+            return redirect()->route('chats.show', $chat->id);
         } catch (\Throwable $e) {
             DB::rollBack();
 
             Log::channel('chat')->error($e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ошибка при создании чата. Попробуйте ещё раз.'
+            ]);
         }
-
-        $chat = ChatResource::make($chat)->resolve();
-
-        return inertia('Chat/Show', compact('chat'));
     }
 
     public function show(Chat $chat): Response|ResponseFactory
     {
-        $chat = ChatResource::make($chat)->resolve();
+        $users = UserResource::collection($chat->users()->get())->resolve();
+        $chat = MessageResource::make($chat)->resolve();
 
-        return inertia('Chat/Show', compact('chat'));
+        return inertia('Chat/Show', compact('chat', 'users'));
     }
 }

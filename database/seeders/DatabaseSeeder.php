@@ -14,20 +14,20 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::factory()->create([
-            'name' => 'user',
+            'name' => 'Alex',
             'email' => 'user@mail.com',
             'password' => '123123123',
         ]);
 
         User::factory()->create([
-            'name' => 'user2',
-            'email' => 'user2@mail.com',
+            'name' => 'Oleg',
+            'email' => 'oleg@mail.com',
             'password' => '123123123',
         ]);
 
          User::factory()->create([
-             'name' => 'user3',
-             'email' => 'user3@mail.com',
+             'name' => 'Masha',
+             'email' => 'masha@mail.com',
              'password' => '123123123',
          ]);
     }
