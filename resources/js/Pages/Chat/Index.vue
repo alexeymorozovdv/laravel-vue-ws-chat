@@ -19,7 +19,7 @@ export default {
                 userIds: [],
                 chatTitle: ''
             },
-            isGroup: false
+            isGroup: false,
         }
     },
 
@@ -31,7 +31,7 @@ export default {
     layout: Main,
 
     methods: {
-        createChat(id = null) {
+        createChat(user = null) {
             if (this.isGroup) {
                 if (this.createGroupChatData.userIds.length === 0) {
                     this.$swal({
@@ -48,7 +48,9 @@ export default {
                 return;
             }
 
-            this.sendCreateChatRequest({ id }, null)
+            let userId = user.id;
+            let title = `Chat with ${user.name}`
+            this.sendCreateChatRequest({ userId }, title)
         },
 
         sendCreateChatRequest(users, title) {
@@ -57,9 +59,11 @@ export default {
                 title: title
             }).then(res => {
                 if (res.data.status === 'success') {
+                    debugger
                     this.$swal({
                         icon: 'success',
                         html: res.data.message,
+                        timer: 1500
                     }).then(() => {
                         this.chats.push(res);
                     })
@@ -67,9 +71,14 @@ export default {
                     this.$swal({
                         icon: 'error',
                         html: res.data.message,
+                        timer: 1500
                     })
                 }
             });
+        },
+
+        deleteChat() {
+
         }
     }
 }
@@ -77,20 +86,29 @@ export default {
 
 <template>
     <div class="flex items-start">
+        <!-- Chats section -->
         <div class="p-4 w-1/2 bg-white border border-gray-200 mr-4 rounded-lg">
             <h3 class="mb-4 text-lg text-gray-600">Chats:</h3>
             <div v-if="chats">
-                <div v-for="(chat, index) in chats" class="flex items-center mb-4 pb-4 border-b border-gray-300">
+                <div v-for="(chat, index) in chats"
+                     :class="['flex items-center pb-4',
+                        (index !== chats.length - 1) ? 'border-b border-gray-300 mb-4' : '']">
                     <Link :href="route('chats.show', chat.id)" class="flex hover:text-gray-400">
                         <p class="mr-2">{{ ++index }}.</p>
                         <p>{{ chat.title ?? 'Unnamed chat' }}</p>
                     </Link>
+                    <a @click.prevent="deleteChat(chat)"
+                       class="ml-auto inline-block bg-red-500 hover:bg-red-300 text-white text-xs px-3 py-2 ml-4 rounded-lg"
+                       href="#">
+                        Delete
+                    </a>
                 </div>
             </div>
         </div>
 
+        <!-- Users section -->
         <div class="p-4 w-1/2 bg-white border border-gray-200 rounded-lg">
-            <div class="mb-6 flex justify-between items-center">
+            <div class="flex justify-between items-center">
                 <h3 class="mb-4 text-lg text-gray-600">Users:</h3>
                 <a @click="showCreateGroupChatModal = true"
                    class="inline-block bg-indigo-600 hover:bg-indigo-400 text-white text-xs px-3 py-2 rounded-lg"
@@ -99,21 +117,31 @@ export default {
                 </a>
             </div>
             <div v-if="users">
-                <div v-for="user in users" class="flex items-center mb-4 pb-4 border-b border-gray-300">
+                <div v-for="(user, index) in users"
+                     :class="['flex items-center pb-4',
+                        (index !== users.length - 1) ? 'border-b border-gray-300 mb-4' : '']">
                     <p>{{ user.name }}</p>
-                    <a @click.prevent="createChat(user.id)" @click="this.isGroup = false" class="inline-block bg-sky-500 hover:bg-sky-300 text-white text-xs px-3 py-2 ml-4 rounded-lg" href="#">Message</a>
+                    <a @click.prevent="createChat(user)"
+                       @click="this.isGroup = false"
+                       class="inline-block bg-sky-500 hover:bg-sky-300 text-white text-xs px-3 py-2 ml-4 rounded-lg"
+                       href="#">
+                        Message
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <Modal v-if="showCreateGroupChatModal" title="Add users to a new chat" width="md" v-on:close="showCreateGroupChatModal = false">
-
+    <Modal v-if="showCreateGroupChatModal"
+           title="Add users to a new chat"
+           width="md"
+           v-on:close="showCreateGroupChatModal = false"
+    >
         <div class="mb-4">
             <h5 class="mb-4 text-md">New chat's name:</h5>
             <input
                 class="rounded-full block w-full p-4 text-gray-900 border border-gray-300 rounded-lg
-                                bg-gray-50 text-sm focus:ring-blue-500 focus:border-blue-500"
+                    bg-gray-50 text-sm focus:ring-blue-500 focus:border-blue-500"
                 type="text"
                 v-model="createGroupChatData.chatTitle"
                 placeholder="New chat's name.."

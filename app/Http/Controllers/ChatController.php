@@ -22,17 +22,25 @@ class ChatController extends Controller
     public function index(): Response
     {
         $users = UserResource::collection(User::whereNot('id', auth()->id())->get())->resolve();
-        $chats = ChatResource::collection(auth()->user()->chats()->has('messages')->get())->resolve();
+        $chats = ChatResource::collection(auth()->user()->chats()->get())->resolve();
 
         return inertia('Chat/Index', compact('users', 'chats'));
     }
 
     public function store(StoreRequest $request): RedirectResponse|JsonResponse
     {
+        // TODO: отрефакторить, вынести в сервис
         $data = $request->validated();
         $usersIds = array_merge($data['users'], [auth()->id()]);
         sort($usersIds);
         $usersIdsString = implode('-', $usersIds);
+
+        if (Chat::where('users', $usersIdsString)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Чат с этим пользователем уже создан.'
+            ]);
+        }
 
         try {
             DB::beginTransaction();

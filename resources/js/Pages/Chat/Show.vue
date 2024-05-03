@@ -89,7 +89,9 @@ export default {
         <div class="p-4 w-1/4 bg-white border border-gray-200 rounded-lg">
             <h3 class="mb-4 text-lg text-gray-600">Chat users:</h3>
             <div v-if="users">
-                <div v-for="user in users" class="flex items-center mb-4 pb-4 border-b border-gray-300">
+                <div v-for="(user, index) in users"
+                     :class="['flex items-center pb-4', (index !== users.length - 1) ? 'border-b border-gray-300 mb-4' : '']"
+                >
                     <p>{{ user.name }}</p>
                 </div>
             </div>
