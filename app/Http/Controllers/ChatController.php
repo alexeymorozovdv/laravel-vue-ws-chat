@@ -11,21 +11,20 @@ use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
-use Inertia\Middleware;
 use Inertia\Response;
-use Monolog\Logger;
+use Inertia\ResponseFactory;
 
 class ChatController extends Controller
 {
     public function index(): Response
     {
         $users = UserResource::collection(User::whereNot('id', auth()->id())->get())->resolve();
+        $chats = ChatResource::collection(auth()->user()->chats()->get())->resolve();
 
-        return inertia('Chat/Index', compact('users'));
+        return inertia('Chat/Index', compact('users', 'chats'));
     }
 
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): Response|ResponseFactory
     {
         $data = $request->validated();
         $usersIds = array_merge($data['users'], [auth()->id()]);
@@ -50,6 +49,13 @@ class ChatController extends Controller
             Log::channel('chat')->error($e->getMessage());
         }
 
+        $chat = ChatResource::make($chat)->resolve();
+
+        return inertia('Chat/Show', compact('chat'));
+    }
+
+    public function show(Chat $chat): Response|ResponseFactory
+    {
         $chat = ChatResource::make($chat)->resolve();
 
         return inertia('Chat/Show', compact('chat'));
