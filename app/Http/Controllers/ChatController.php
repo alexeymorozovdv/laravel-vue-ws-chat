@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Chat\StoreRequest;
-use App\Http\Resources\Chat\MessageResource;
+use App\Http\Resources\Chat\ChatResource;
+use App\Http\Resources\Message\MessageResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Chat;
 use App\Models\User;
@@ -62,8 +63,9 @@ class ChatController extends Controller
     public function show(Chat $chat): Response|ResponseFactory
     {
         $users = UserResource::collection($chat->users()->get())->resolve();
-        $chat = MessageResource::make($chat)->resolve();
+        $messages = MessageResource::collection($chat->messages()->get())->resolve();
+        $chat = ChatResource::make($chat)->resolve();
 
-        return inertia('Chat/Show', compact('chat', 'users'));
+        return inertia('Chat/Show', compact('chat', 'users', 'messages'));
     }
 }

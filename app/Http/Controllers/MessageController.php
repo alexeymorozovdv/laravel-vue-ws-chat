@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Message\StoreRequest;
-use App\Http\Resources\Chat\MessageResource;
+use App\Http\Resources\Message\MessageResource;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\MessageStatus;

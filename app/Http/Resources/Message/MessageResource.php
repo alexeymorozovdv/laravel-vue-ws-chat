@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Resources\Chat;
+namespace App\Http\Resources\Message;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,9 +17,11 @@ class MessageResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
+            'user_id' => $this->author->id,
+            'user_name' => $this->author->name,
             'chat_id' => $this->chat_id,
-            'body' => $this->body
+            'body' => $this->body,
+            'time' => $this->time,
         ];
     }
 }

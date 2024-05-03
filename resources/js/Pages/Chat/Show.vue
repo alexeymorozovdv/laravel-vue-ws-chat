@@ -6,7 +6,8 @@ export default {
 
     props: [
         'chat',
-        'users'
+        'users',
+        'messages',
     ],
 
     data() {
@@ -17,18 +18,19 @@ export default {
 
     methods: {
         store() {
-            // console.log(this.userIds);
             axios.post('/messages', {
                 chat_id: this.chat.id,
                 body: this.body,
                 user_ids: this.userIds
             }).then(res => {
-                console.log(res);
+                this.messages.push(res.data);
+                // TODO: добавить попап
             })
         }
     },
 
     computed: {
+        // Передаём на бэк id всех юзеров чата, кроме залогиненного, для передачи в метод сохранения сообщений
         userIds() {
             return this.users.map(user => {
                 return user.id
@@ -46,8 +48,15 @@ export default {
     <div class="flex">
         <div class="p-4 w-3/4 bg-white border border-gray-200 mr-4 rounded-lg">
             <h3 class="mb-4 text-lg text-gray-600">{{ chat.title ?? 'Unnamed chat' }}</h3>
-            <div class="mb-4">
+            <div class="mb-4" v-if="messages">
+                <div v-for="message in messages" class="pb-4 text-sm">
+                    <div class="flex items-cente">
+                        <p class="font-bold">{{ message.user_name }}</p>
+                        <p class="ml-1 italic">said {{ message.time }}</p>
+                    </div>
+                    <p class="bg-sky-50 p-4 my-2 border border-sky-100 rounded-full">{{ message.body }}</p>
 
+                </div>
             </div>
 
             <div>
@@ -58,7 +67,7 @@ export default {
                     </div>
                     <div>
                         <a @click.prevent="store()"
-                           class="inline-block bg-indigo-600 text-white text-sm px-4 py-2 ml-4 rounded-lg hover:bg-indigo-500"
+                           class="inline-block bg-indigo-600 text-white text-sm px-4 py-2 ml-4 rounded-lg hover:bg-indigo-400"
                            href="#">
                             Send
                         </a>
@@ -68,7 +77,7 @@ export default {
         </div>
 
         <div class="p-4 w-1/4 bg-white border border-gray-200 rounded-lg">
-            <h3 class="mb-4 text-lg text-gray-600">Users:</h3>
+            <h3 class="mb-4 text-lg text-gray-600">Chat users:</h3>
             <div v-if="users">
                 <div v-for="user in users" class="flex items-center mb-4 pb-4 border-b border-gray-300">
                     <p>{{ user.name }}</p>
