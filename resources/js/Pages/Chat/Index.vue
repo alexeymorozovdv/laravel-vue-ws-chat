@@ -18,8 +18,7 @@ export default {
             createGroupChatData: {
                 userIds: [],
                 chatTitle: ''
-            },
-            isGroup: false,
+            }
         }
     },
 
@@ -31,33 +30,57 @@ export default {
     layout: Main,
 
     methods: {
-        createChat(user = null) {
-            if (this.isGroup) {
-                if (this.createGroupChatData.userIds.length === 0) {
+        createPrivateChat(user) {
+            let userId = user.id;
+            let title = `${user.name} - ${this.$page.props.auth.user.name} chat`
+
+            axios.post(route('chats.store'), {
+                users: {userId},
+                title: title,
+                isGroup: false
+            }).then(res => {
+                if (res.data.status === 'success') {
+                    this.chats.push(res.data.chat)
                     this.$swal({
-                        icon: 'error',
-                        html: 'Select at least one user',
+                        icon: 'success',
+                        html: res.data.message,
                         timer: 1500
                     })
-
-                    return;
+                } else {
+                    this.$swal({
+                        icon: 'error',
+                        html: res.data.message,
+                        timer: 1500
+                    })
                 }
+            });
+        },
 
-                this.sendCreateChatRequest({ ...this.createGroupChatData.userIds }, this.createGroupChatData.chatTitle)
+        createGroupChat() {
+            if (this.createGroupChatData.userIds.length < 2) {
+                this.$swal({
+                    icon: 'error',
+                    html: 'Select at least two users',
+                    timer: 1500
+                })
 
                 return;
             }
 
-            let userId = user.id;
-            let title = `${user.name} - ${this.$page.props.auth.user.name} chat`
-            this.sendCreateChatRequest({ userId }, title)
-        },
+            if (this.createGroupChatData.chatTitle === '') {
+                this.$swal({
+                    icon: 'error',
+                    html: "Chat' name is required",
+                    timer: 1500
+                })
 
-        sendCreateChatRequest(users, title) {
+                return;
+            }
+
             axios.post(route('chats.store'), {
-                users: users,
-                title: title,
-                isGroup: this.isGroup
+                users: {...this.createGroupChatData.userIds},
+                title: this.createGroupChatData.chatTitle,
+                isGroup: true
             }).then(res => {
                 if (res.data.status === 'success') {
                     this.chats.push(res.data.chat)
@@ -162,8 +185,7 @@ export default {
                      :class="['flex items-center pb-4',
                         (index !== users.length - 1) ? 'border-b border-gray-300 mb-4' : '']">
                     <p>{{ user.name }}</p>
-                    <a @click.prevent="createChat(user)"
-                       @click="this.isGroup = false"
+                    <a @click.prevent="createPrivateChat(user)"
                        class="inline-block bg-sky-500 hover:bg-sky-300 text-white text-xs px-3 py-2 ml-4 rounded-lg"
                        href="#">
                         Message
@@ -207,7 +229,7 @@ export default {
 
         <div class="text-right mt-6 flex justify-between">
             <button @click="showCreateGroupChatModal = false" class="mr-2 px-4 py-2 text-sm rounded text-white bg-yellow-400 focus:outline-none hover:bg-yellow-300">Cancel</button>
-            <button @click.prevent="createChat" @click="this.isGroup = true" class="mr-2 px-4 py-2 text-sm rounded text-white bg-sky-400 focus:outline-none hover:bg-sky-300">Save</button>
+            <button @click.prevent="createGroupChat" class="mr-2 px-4 py-2 text-sm rounded text-white bg-sky-400 focus:outline-none hover:bg-sky-300">Save</button>
         </div>
     </Modal>
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Chat\UpdateRequest;
 use App\Http\Requests\Chat\StoreRequest;
 use App\Http\Resources\Chat\ChatResource;
 use App\Http\Resources\Message\MessageResource;
@@ -25,6 +26,26 @@ class ChatController extends Controller
         $chats = ChatResource::collection(auth()->user()->chats()->get())->resolve();
 
         return inertia('Chat/Index', compact('users', 'chats'));
+    }
+
+    public function update(UpdateRequest $request, Chat $chat): JsonResponse
+    {
+        try {
+            $data = $request->validated();
+            $chat->update($data);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Chat was successfully updated'
+            ]);
+        } catch (\Throwable $e) {
+            Log::channel('chat')->error($e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function store(StoreRequest $request): RedirectResponse|JsonResponse

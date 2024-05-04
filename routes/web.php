@@ -33,6 +33,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/chats', [ChatController::class, 'index'])->name('chats.index');
+    Route::patch('/chats/{chat}', [ChatController::class, 'update'])->name('chats.update');
     Route::post('/chats', [ChatController::class, 'store'])->name('chats.store');
     Route::get('/chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
     Route::delete('/chats/{chat}', [ChatController::class, 'destroy'])->name('chats.destroy');
