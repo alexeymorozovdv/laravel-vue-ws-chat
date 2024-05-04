@@ -50,6 +50,7 @@ export default {
             }).then(res => {
                 if (res.data.status === 'success') {
                     this.chat.title = this.newTitle
+                    this.showTitleInput = false
                     this.$swal({
                         icon: 'success',
                         html: res.data.message,
@@ -103,6 +104,7 @@ export default {
                         type="text"
                         :placeholder="newTitle"
                         v-model="newTitle"
+                        required
                     >
                     <button @click.prevent="editChat"
                             class="mr-2 ml-2 px-4 py-2 text-sm rounded text-white bg-sky-400 focus:outline-none hover:bg-sky-300">
@@ -144,11 +146,13 @@ export default {
                         >
                     </div>
                     <div>
-                        <a @click.prevent="store()"
-                           class="inline-block bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-400"
+                        <button @click.prevent="store()"
+                           class="inline-block text-white text-sm px-4 py-2 rounded-lg"
+                           :disabled="this.body === ''"
+                           :class="this.body === '' ? 'bg-indigo-200' : 'bg-indigo-600 hover:bg-indigo-400'"
                            href="#">
                             Send
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
